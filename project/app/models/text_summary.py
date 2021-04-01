@@ -1,3 +1,5 @@
+# In the tutorial, this file is named 'tortoise.py'
+
 from tortoise import fields, models
 
 
