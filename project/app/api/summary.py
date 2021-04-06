@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.api import crud
 from app.models.summary_payload import SummaryPayloadSchema, SummaryResponseSchema
+from app.models.text_summary import SummarySchema
 
 
 router = APIRouter()
@@ -28,7 +29,7 @@ async def create_summary(payload: SummaryPayloadSchema) -> SummaryResponseSchema
     return response
 
 
-@router.get('{id}', response_model=SummarySchema)
+@router.get('/{id}', response_model=SummarySchema)
 async def read_summary(id: int) -> SummarySchema:
     summary = await crud.get(id)
 
