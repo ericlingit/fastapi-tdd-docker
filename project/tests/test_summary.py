@@ -47,3 +47,11 @@ def test_read_summary(test_app_with_db):
     assert rj['url'] == 'https://foo.bar'
     assert rj['summary']
     assert rj['created_at']
+
+
+def test_read_summary_bad_id(test_app_with_db):
+    response = test_app_with_db.get(
+        f'/summary/999'
+    )
+    assert response.status_code == 404
+    assert response.json()['detail'] == 'Summary not found'
