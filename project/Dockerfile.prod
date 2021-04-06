@@ -1,0 +1,38 @@
+FROM python:3.7-slim-buster
+
+# create user
+RUN mkdir -p /home/app
+RUN addgroup --system app && adduser --system --group app
+
+# create directories
+ENV HOME=/home/app
+ENV APP_HOME=/home/app/web
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV ENVORONMENT prod
+ENV TESTING 0
+
+# install system dependencies
+RUN apt-get update \
+  && apt-get -y install netcat gcc postgresql \
+  && apt-get clean
+
+# install python dependencies
+RUN pip install -U pip wheel
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install "uvicorn[standard]==0.13.4"
+
+# add app
+COPY . .
+RUN chown -R app:app $APP_HOME
+
+# switch user
+USER app
+
+# run gunicorn. $PORT will be set by Heroku
+CMD gunicorn --bind 0.0.0.0:$PORT app.main:app -k uvicorn.workers.UvicornWorker
