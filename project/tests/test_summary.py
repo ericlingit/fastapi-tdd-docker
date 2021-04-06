@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 import pytest
 
@@ -55,3 +56,17 @@ def test_read_summary_bad_id(test_app_with_db):
     )
     assert response.status_code == 404
     assert response.json()['detail'] == 'Summary not found'
+
+
+def test_read_all_summaries(test_app_with_db):
+    response = test_app_with_db.post(
+        '/summary',
+        data=json.dumps({'url': 'https://foo.bar'})
+    )
+    summary_id = response.json()['id']
+
+    response = test_app_with_db.get('/summary')
+    assert response.status_code == 200
+
+    rj: List[dict] = response.json()
+    assert len(list(filter(lambda d: d['id'] == summary_id, rj))) == 1
