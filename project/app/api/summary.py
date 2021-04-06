@@ -3,6 +3,8 @@
 '''This module interacts with http requests, while
 the crud.py modle interacts with the database.'''
 
+from typing import List
+
 from fastapi import APIRouter, HTTPException
 
 from app.api import crud
@@ -37,3 +39,8 @@ async def read_summary(id: int) -> SummarySchema:
         raise HTTPException(status_code=404, detail='Summary not found')
 
     return summary
+
+
+@router.get('/', response_model=List[SummarySchema])
+async def read_all_summaries() -> List[SummarySchema]:
+    return await crud.get_all()
