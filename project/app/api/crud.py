@@ -7,7 +7,7 @@ My guess is that this makes testing easier...?
 
 from typing import Optional
 
-from app.models.summary_payload import SummaryPayloadSchema, SummaryResponseSchema
+from app.models.summary_payload import SummaryPayloadSchema
 from app.models.text_summary import TextSummary
 
 

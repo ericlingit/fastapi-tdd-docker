@@ -1,8 +1,6 @@
 import json
 from typing import List
 
-import pytest
-
 
 def test_create_summary(test_app_with_db):
     '''Fixture for this test is located at conftest.test_app_with_db().'''
@@ -52,7 +50,7 @@ def test_read_summary(test_app_with_db):
 
 def test_read_summary_bad_id(test_app_with_db):
     response = test_app_with_db.get(
-        f'/summary/999'
+        '/summary/999'
     )
     assert response.status_code == 404
     assert response.json()['detail'] == 'Summary not found'
