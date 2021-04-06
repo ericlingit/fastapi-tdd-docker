@@ -19,3 +19,6 @@ exclude = '''
   )/
 )
 '''
+
+[tool.isort]
+skip = ['env', '.pytest_cache', '__pycache__', '.git']

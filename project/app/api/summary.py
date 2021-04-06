@@ -8,9 +8,9 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 
 from app.api import crud
-from app.models.summary_payload import SummaryPayloadSchema, SummaryResponseSchema
+from app.models.summary_payload import (SummaryPayloadSchema,
+                                        SummaryResponseSchema)
 from app.models.text_summary import SummarySchema
-
 
 router = APIRouter()
 
