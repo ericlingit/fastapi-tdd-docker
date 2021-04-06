@@ -28,3 +28,22 @@ def test_create_summary_bad_json(test_app):
             'type': 'value_error.missing'
         }]
     }
+
+
+def test_read_summary(test_app_with_db):
+    response = test_app_with_db.post(
+        '/summary',
+        data=json.dumps({'url': 'https://foo.bar'})
+    )
+    summary_id = response.json()['id']
+
+    response = test_app_with_db.get(
+        f'/summary/{summary_id}'
+    )
+    assert response.status_code == 200
+
+    rj = response.json()
+    assert rj['id'] == summary_id
+    assert rj['url'] == 'https://foo.bar'
+    assert rj['summary']
+    assert rj['created_at']
