@@ -26,3 +26,7 @@ async def get(id: int) -> Optional[dict]:
     if summary:
         return summary[0]
     return None
+
+
+async def get_all() -> list:
+    return await TextSummary.all().values()
