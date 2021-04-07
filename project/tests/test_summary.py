@@ -48,7 +48,7 @@ def test_read_summary_bad_id(test_app_with_db: TestClient):
         "detail": [
             {
                 "loc": ["path", "id"],
-                "msg": "id must be greater than 0",
+                "msg": "ensure this value is greater than 0",
                 "type": "value_error.number.not_gt",
                 "ctx": {"limit_value": 0},
             }

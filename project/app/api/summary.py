@@ -5,7 +5,7 @@ the crud.py modle interacts with the database."""
 
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path
 
 from app.api import crud
 from app.models.summary_payload import SummaryPayloadSchema, SummaryResponseSchema, SummaryUpdatePayloadSchema
@@ -28,7 +28,7 @@ async def create_summary(payload: SummaryPayloadSchema) -> SummaryResponseSchema
 
 
 @router.get("/{id}", response_model=SummarySchema)
-async def read_summary(id: int) -> SummarySchema:
+async def read_summary(id: int=Path(..., gt=0)) -> SummarySchema:
     summary = await crud.get(id)
 
     if not summary:
