@@ -12,7 +12,7 @@ def test_create_summary(test_app_with_db: TestClient):
     assert response.json().get("url", "") == "https://foo.bar"
 
 
-def test_create_summary_bad_json(test_app):
+def test_create_summary_bad_json(test_app: TestClient):
     response = test_app.post("/summary", data=json.dumps({}))
 
     assert response.status_code == 422
