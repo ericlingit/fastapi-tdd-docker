@@ -2,6 +2,7 @@ from app.models.summary_payload import SummaryResponseSchema
 import json
 from typing import List
 
+import pytest
 from starlette.testclient import TestClient
 
 
@@ -127,84 +128,64 @@ def test_update_summary(test_app_with_db: TestClient):
     assert rj["created_at"]
 
 
-def test_update_summary_bad_id(test_app_with_db: TestClient):
-    response = test_app_with_db.put(
-        "/summary/999",
-        data=json.dumps({"url": "https://foo.bar", "summary": "updated!"})
-    )
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Summary not found"
-
-    response = test_app_with_db.put(
-        "/summary/0",
-        data=json.dumps({"url": "https://foo.bar", "summary": "updated"})
-    )
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "loc": ["path", "id"],
-                "msg": "ensure this value is greater than 0",
-                "type": "value_error.number.not_gt",
-                "ctx": {"limit_value": 0},
-            }
+@pytest.mark.parametrize("summary_id, payload, status_code, detail", [
+    # Test non-existant id
+    [
+        999,
+        {"url": "https://foo.bar", "summary": "updated!"},
+        404, # Expected status_code
+        "Summary not found"
+    ],
+    # Test id = 0
+    [
+        0,
+        {"url": "https://foo.bar", "summary": "updated!"},
+        422,
+        [{
+            "loc": ["path", "id"],
+            "msg": "ensure this value is greater than 0",
+            "type": "value_error.number.not_gt",
+            "ctx": {"limit_value": 0}
+        }]
+    ],
+    # Test json data: empty
+    [
+        1,
+        {},
+        422,
+        [
+            {"loc": ["body", "url"], "msg": "field required", "type": "value_error.missing"},
+            {"loc": ["body", "summary"], "msg": "field required", "type": "value_error.missing"}
         ]
-    }
-
-
-def test_update_summary_bad_json(test_app_with_db: TestClient):
-    response = test_app_with_db.post(
-        "/summary",
-        data=json.dumps({"url": "https://foo.bar"})
-    )
-    summary_id = response.json()["id"]
-
+    ],
+    # Test json data: missing 'summary' key
+    [
+        1,
+        {"url": "https://foo.bar"},
+        422,
+        [{
+            "loc": ["body", "summary"],
+            "msg": "field required",
+            "type": "value_error.missing"
+        }]
+    ],
+    # Test json data: bad url
+    [
+        1,
+        {"url": "xxx://yyy", "summary": "updated!"},
+        422,
+        [{
+            "loc": ["body", "url"],
+            "msg": "URL scheme not permitted",
+            "type": "value_error.url.scheme",
+            "ctx": {"allowed_schemes": ["http", "https"]}
+        }]
+    ]
+])
+def test_update_summary_bad_id_json(test_app_with_db: TestClient, summary_id, payload, status_code, detail):
     response = test_app_with_db.put(
         f"/summary/{summary_id}",
-        data=json.dumps({})
+        data=json.dumps(payload)
     )
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "loc": ["body", "url"],
-                "msg": "field required",
-                "type": "value_error.missing"
-            },
-            {
-                "loc": ["body", "summary"],
-                "msg": "field required",
-                "type": "value_error.missing"
-            }
-        ]
-    }
-
-    response = test_app_with_db.put(
-        f"/summary/{summary_id}",
-        data=json.dumps({"url": "xxx://yyy"})
-    )
-    assert response.status_code == 422
-    assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
-
-
-def test_update_summary_bad_json_keys(test_app_with_db: TestClient):
-    response = test_app_with_db.post(
-        "/summary",
-        data=json.dumps({"url": "https://foo.bar"})
-    )
-    summary_id = response.json()["id"]
-
-    response = test_app_with_db.put(
-        f"/summary/{summary_id}",
-        data=json.dumps({"url": "https://foo.bar"})
-    )
-    assert response.status_code == 422
-    assert response.json() == {
-        "detail": [
-            {
-                "loc": ["body", "summary"],
-                "msg": "field required",
-                "type": "value_error.missing"
-            }
-        ]
-    }
+    assert response.status_code == status_code
+    assert response.json()["detail"] == detail
