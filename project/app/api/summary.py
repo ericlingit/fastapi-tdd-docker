@@ -8,7 +8,11 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Path
 
 from app.api import crud
-from app.models.summary_payload import SummaryPayloadSchema, SummaryResponseSchema, SummaryUpdatePayloadSchema
+from app.models.summary_payload import (
+    SummaryPayloadSchema,
+    SummaryResponseSchema,
+    SummaryUpdatePayloadSchema,
+)
 from app.models.text_summary import SummarySchema
 
 router = APIRouter()
@@ -28,7 +32,7 @@ async def create_summary(payload: SummaryPayloadSchema) -> SummaryResponseSchema
 
 
 @router.get("/{id}", response_model=SummarySchema)
-async def read_summary(id: int=Path(..., gt=0)) -> SummarySchema:
+async def read_summary(id: int = Path(..., gt=0)) -> SummarySchema:
     summary = await crud.get(id)
 
     if not summary:
@@ -43,10 +47,10 @@ async def read_all_summaries() -> List[SummarySchema]:
 
 
 @router.delete("/{id}", response_model=SummaryResponseSchema)
-async def remove_summary(id: int=Path(..., gt=0)) -> SummaryResponseSchema:
+async def remove_summary(id: int = Path(..., gt=0)) -> SummaryResponseSchema:
     summary = await crud.get(id)
     if not summary:
-        raise HTTPException(status_code=404, detail='Summary not found')
+        raise HTTPException(status_code=404, detail="Summary not found")
 
     await crud.delete(id)
 
@@ -57,6 +61,6 @@ async def remove_summary(id: int=Path(..., gt=0)) -> SummaryResponseSchema:
 async def update_summary(payload: SummaryUpdatePayloadSchema, id: int = Path(..., gt=0)) -> SummarySchema:
     summary = await crud.put(id, payload)
     if not summary:
-        raise HTTPException(status_code=404, detail='Summary not found')
+        raise HTTPException(status_code=404, detail="Summary not found")
 
     return summary
