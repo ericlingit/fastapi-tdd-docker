@@ -20,6 +20,10 @@ def test_create_summary_bad_json(test_app: TestClient):
         "detail": [{"loc": ["body", "url"], "msg": "field required", "type": "value_error.missing"}]
     }
 
+    response = test_app.post("/summary", data=json.dumps({"url": "xxx"}))
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
+
 
 def test_read_summary(test_app_with_db: TestClient):
     response = test_app_with_db.post("/summary", data=json.dumps({"url": "https://foo.bar"}))
