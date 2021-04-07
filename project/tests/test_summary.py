@@ -165,6 +165,13 @@ def test_update_summary_bad_json(test_app_with_db: TestClient):
         ]
     }
 
+    response = test_app_with_db.put(
+        f"/summary/{summary_id}",
+        data=json.dumps({"url": "xxx://yyy"})
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
+
 
 def test_update_summary_bad_json_keys(test_app_with_db: TestClient):
     response = test_app_with_db.post(
