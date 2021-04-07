@@ -166,7 +166,7 @@ def test_update_summary(test_app_with_db: TestClient):
                     "loc": ["body", "url"],
                     "msg": "URL scheme not permitted",
                     "type": "value_error.url.scheme",
-                    "ctx": {"allowed_schemes": ["http", "https"]},
+                    "ctx": {"allowed_schemes": ["https", "http"]},
                 }
             ],
         ],
