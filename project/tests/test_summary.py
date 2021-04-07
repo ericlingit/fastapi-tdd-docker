@@ -66,3 +66,83 @@ def test_remove_summary_bad_id(test_app_with_db):
     response = test_app_with_db.delete('/summary/999')
     assert response.status_code == 404
     assert response.json()['detail'] == 'Summary not found'
+
+
+def test_update_summary(test_app_with_db):
+    response = test_app_with_db.post(
+        "/summary",
+        data=json.dumps({"url": "https://foo.bar"})
+    )
+    summary_id = response.json()['id']
+
+    response = test_app_with_db.put(
+        f"/summary/{summary_id}",
+        data=json.dumps({"url": "https://foo.bar", "summary": "updated!"})
+    )
+    assert response.status_code == 200
+
+    rj = response.json()
+    assert rj["id"] == summary_id
+    assert rj["url"] == "https://foo.bar"
+    assert rj["summary"] == "updated!"
+    assert rj["created_at"]
+
+
+def test_update_summary_bad_id(test_app_with_db):
+    response = test_app_with_db.put(
+        "/summary/999",
+        data=json.dumps({"url": "https://foo.bar", "summary": "updated!"})
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Summary not found"
+
+
+def test_update_summary_bad_json(test_app_with_db):
+    response = test_app_with_db.post(
+        "/summary",
+        data=json.dumps({"url": "https://foo.bar"})
+    )
+    summary_id = response.json()["id"]
+
+    response = test_app_with_db.put(
+        f"/summary/{summary_id}",
+        data=json.dumps({})
+    )
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": ["body", "url"],
+                "msg": "field required",
+                "type": "value_error.missing"
+            },
+            {
+                "loc": ["body", "summary"],
+                "msg": "field required",
+                "type": "value_error.missing"
+            }
+        ]
+    }
+
+
+def test_update_summary_bad_json_keys(test_app_with_db):
+    response = test_app_with_db.post(
+        "/summary",
+        data=json.dumps({"url": "https://foo.bar"})
+    )
+    summary_id = response.json()["id"]
+
+    response = test_app_with_db.put(
+        f"/summary/{summary_id}",
+        data=json.dumps({"url": "https://foo.bar"})
+    )
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": [
+            {
+                "loc": ["body", "summary"],
+                "msg": "field required",
+                "type": "value_error.missing"
+            }
+        ]
+    }
