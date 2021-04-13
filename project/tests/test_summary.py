@@ -165,11 +165,8 @@ def test_update_summary_bad_id_json(test_app_with_db: TestClient, summary_id, pa
 
 
 def test_update_summary_bad_url(test_app_with_db: TestClient):
-    '''This is split from the above func because the order of items in ["https", "http"] can vary,
-    causing tests to fail needlessly.'''
-    response = test_app_with_db.put(
-        f"/summary/1",
-        data=json.dumps({"url": "xxx://yyy", "summary": "updated!"})
-    )
+    """This is split from the above func because the order of items in ["https", "http"] can vary,
+    causing tests to fail needlessly."""
+    response = test_app_with_db.put("/summary/1", data=json.dumps({"url": "xxx://yyy", "summary": "updated!"}))
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
