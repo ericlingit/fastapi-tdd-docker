@@ -156,23 +156,20 @@ def test_update_summary(test_app_with_db: TestClient):
             422,
             [{"loc": ["body", "summary"], "msg": "field required", "type": "value_error.missing"}],
         ],
-        # Test json data: bad url
-        [
-            1,
-            {"url": "xxx://yyy", "summary": "updated!"},
-            422,
-            [
-                {
-                    "loc": ["body", "url"],
-                    "msg": "URL scheme not permitted",
-                    "type": "value_error.url.scheme",
-                    "ctx": {"allowed_schemes": ["https", "http"]},
-                }
-            ],
-        ],
     ],
 )
 def test_update_summary_bad_id_json(test_app_with_db: TestClient, summary_id, payload, status_code, detail):
     response = test_app_with_db.put(f"/summary/{summary_id}", data=json.dumps(payload))
     assert response.status_code == status_code
     assert response.json()["detail"] == detail
+
+
+def test_update_summary_bad_url(test_app_with_db: TestClient):
+    '''This is split from the above func because the order of items in ["https", "http"] can vary,
+    causing tests to fail needlessly.'''
+    response = test_app_with_db.put(
+        f"/summary/1",
+        data=json.dumps({"url": "xxx://yyy", "summary": "updated!"})
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "URL scheme not permitted"
